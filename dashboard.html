@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMONSEGURITY | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --accent: #00ff88;
+            --card-bg: rgba(20, 20, 20, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 136, 0.05) 0%, transparent 50%);
+        }
+
+        /* --- NAVBAR ESTILO INDEX --- */
+        nav {
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #ff4444;
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+        }
+
+        /* --- CONTENIDO --- */
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .header-section {
+            margin-bottom: 40px;
+            border-left: 4px solid var(--accent);
+            padding-left: 20px;
+        }
+
+        .header-section h1 { font-size: 2.5rem; margin-bottom: 5px; }
+        .header-section p { color: #888; font-size: 1.1rem; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        /* --- TARJETAS PROFESIONALES --- */
+        .card {
+            height: 200px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner { transform: rotateY(180deg); }
+
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .back {
+            transform: rotateY(180deg);
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* --- ESTILOS POR BANCO --- */
+        .nu .front { background: linear-gradient(135deg, #820ad1, #4b067a); }
+        .bbva .front { background: linear-gradient(135deg, #004481, #002e56); }
+        .amex .front { background: linear-gradient(135deg, #e5e7eb, #9ca3af); color: #111; }
+        .santander .front { background: linear-gradient(135deg, #ec0000, #950000); }
+        .banamex .front { background: linear-gradient(135deg, #004691, #002a5c); }
+        .hsbc .front { background: linear-gradient(135deg, #db0011, #8b000a); }
+        .banorte .front { background: linear-gradient(135deg, #eb0029, #a3001a); }
+        .openbank .front { background: linear-gradient(135deg, #ffffff, #d1d1d1); color: #111; }
+
+        .top-row { display: flex; justify-content: space-between; align-items: center; }
+        .bank-logo { height: 22px; filter: brightness(0) invert(1); }
+        .amex .bank-logo, .openbank .bank-logo { filter: none; } /* No invertir logos en tarjetas claras */
+        
+        .chip {
+            width: 45px;
+            height: 34px;
+            background: linear-gradient(135deg, #f0d078, #a68a31);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .number {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin: 15px 0;
+        }
+
+        .holder {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        /* Lógica del reverso */
+        .label-back { color: var(--accent); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 5px; }
+        .value-back { font-size: 1.8rem; font-weight: 800; margin-bottom: 15px; }
+        .stats { display: flex; justify-content: space-around; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+        .stat-box span { display: block; font-size: 0.6rem; color: #888; }
+        .stat-box strong { font-size: 0.9rem; }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">MMONSEGURITY</div>
+        <a href="index.html" class="btn-logout">CERRAR SESIÓN ASEGURADA</a>
+    </nav>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>Mis Activos</h1>
+            <p>Panel de gestión para Diego de Jesús Miguel Rodríguez</p>
+        </div>
+
+        <div class="grid">
+            <div class="card nu" onclick="this.classList.toggle('flipped')">
+                <div class="card-inner">
+                    <div class="front">
+                        <div class="top-row">
+                            <img src="https://companieslogo.com/img/orig/NU.D-310a665d.png?t=1720244493" class="bank-logo">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="30">
+                        </div>
+                        <div class="chip"></div>
+                        <div class="number">5241 8890 1234 5678</div>
+                        <div class="holder">DIEGO DE JESUS MIGUEL RODRIGUEZ</div>
+                    </div>
+                    <div class="back">
+                        <div class="label-back">Disponible</div>
+                        <div class="value-back">$18,450.00</div>
+                        <div class="stats">
+                            <div class="stat-box"><span>EXP</span><strong>05/28</strong></div>
+                            <div class="stat-box"><span>CVV</span><strong>451</strong></div>
+                            <div class="stat-box"><span>NIP</span><strong>1234</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bbva" onclick="this.classList.toggle('flipped')">
+                <div class="card-inner">
+                    <div class="front">
+                        <div class="top-row">
+                            <img src="https://logo.stocklight.com/NYSE/BBVA_original.png" class="bank-logo">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" height="25">
+                        </div>
+                        <div class="chip"></div>
+                        <div class="number">4152 3344 5566 7788</div>
+                        <div class="holder">DIEGO DE JESUS MIGUEL RODRIGUEZ</div>
+                    </div>
+                    <div class="back">
+                        <div class="label-back">Saldo Actual</div>
+                        <div class="value-back">$92,300.50</div>
+                        <div class="stats">
+                            <div class="stat-box"><span>EXP</span><strong>12/30</strong></div>
+                            <div class="stat-box"><span>CVV</span><strong>991</strong></div>
+                            <div class="stat-box"><span>NIP</span><strong>5522</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card amex" onclick="this.classList.toggle('flipped')">
+                <div class="card-inner">
+                    <div class="front">
+                        <div class="top-row">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg" class="bank-logo">
+                            <span style="font-weight: bold; font-size: 0.7rem;">PLATINUM</span>
+                        </div>
+                        <div class="chip" style="background: #999;"></div>
+                        <div class="number">3759 876543 21001</div>
+                        <div class="holder">DIEGO DE JESUS MIGUEL RODRIGUEZ</div>
+                    </div>
+                    <div class="back">
+                        <div class="label-back">Límite</div>
+                        <div class="value-back">$250,000.00</div>
+                        <div class="stats">
+                            <div class="stat-box"><span>EXP</span><strong>01/30</strong></div>
+                            <div class="stat-box"><span>CID</span><strong>8812</strong></div>
+                            <div class="stat-box"><span>NIP</span><strong>0000</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card santander" onclick="this.classList.toggle('flipped')">
+                <div class="card-inner">
+                    <div class="front">
+                        <div class="top-row">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Banco_Santander_Logotipo.svg/1280px-Banco_Santander_Logotipo.svg.png" class="bank-logo">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="30">
+                        </div>
+                        <div class="chip"></div>
+                        <div class="number">5412 0099 8811 7722</div>
+                        <div class="holder">DIEGO DE JESUS MIGUEL RODRIGUEZ</div>
+                    </div>
+                    <div class="back">
+                        <div class="label-back">Disponible</div>
+                        <div class="value-back">$41,000.00</div>
+                        <div class="stats">
+                            <div class="stat-box"><span>EXP</span><strong>08/27</strong></div>
+                            <div class="stat-box"><span>CVV</span><strong>123</strong></div>
+                            <div class="stat-box"><span>NIP</span><strong>1919</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card banamex" onclick="this.classList.toggle('flipped')">
+                <div class="card-inner">
+                    <div class="front">
+                        <div class="top-row">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Citibanamex_logo.svg/1280px-Citibanamex_logo.svg.png" class="bank-logo">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="30">
+                        </div>
+                        <div class="chip"></div>
+                        <div class="number">5258 7789 4512 0033</div>
+                        <div class="holder">DIEGO DE JESUS MIGUEL RODRIGUEZ</div>
+                    </div>
+                    <div class="back">
+                        <div class="label-back">Saldo</div>
+                        <div class="value-back">$65,200.00</div>
+                        <div class="stats">
+                            <div class="stat-box"><span>EXP</span><strong>11/29</strong></div>
+                            <div class="stat-box"><span>CVV</span><strong>442</strong></div>
+                            <div class="stat-box"><span>NIP</span><strong>7712</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card hsbc" onclick="this.classList.toggle('flipped')">
+                <div class="card-inner">
+                    <div class="front">
+                        <div class="top-row">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/HSBC_logo_%282018%29.svg/1280px-HSBC_logo_%282018%29.svg.png" class="bank-logo">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="30">
+                        </div>
+                        <div class="chip"></div>
+                        <div class="number">5200 8200 4400 6600</div>
+                        <div class="holder">DIEGO DE JESUS MIGUEL RODRIGUEZ</div>
+                    </div>
+                    <div class="back">
+                        <div class="label-back">Saldo</div>
+                        <div class="value-back">$33,900.00</div>
+                        <div class="stats">
+                            <div class="stat-box"><span>EXP</span><strong>04/28</strong></div>
+                            <div class="stat-box"><span>CVV</span><strong>810</strong></div>
+                            <div class="stat-box"><span>NIP</span><strong>1001</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card banorte" onclick="this.classList.toggle('flipped')">
+                <div class="card-inner">
+                    <div class="front">
+                        <div class="top-row">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Logo_de_Banorte.svg/1920px-Logo_de_Banorte.svg.png" class="bank-logo">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" height="25">
+                        </div>
+                        <div class="chip"></div>
+                        <div class="number">4915 6677 8899 1010</div>
+                        <div class="holder">DIEGO DE JESUS MIGUEL RODRIGUEZ</div>
+                    </div>
+                    <div class="back">
+                        <div class="label-back">Disponible</div>
+                        <div class="value-back">$12,800.00</div>
+                        <div class="stats">
+                            <div class="stat-box"><span>EXP</span><strong>07/25</strong></div>
+                            <div class="stat-box"><span>CVV</span><strong>662</strong></div>
+                            <div class="stat-box"><span>NIP</span><strong>4321</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card openbank" onclick="this.classList.toggle('flipped')">
+                <div class="card-inner">
+                    <div class="front">
+                        <div class="top-row">
+                            <img src="https://upload.wikimedia.org/wikipedia/de/thumb/6/6e/Openbank_logo.svg/1280px-Openbank_logo.svg.png" class="bank-logo">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="30">
+                        </div>
+                        <div class="chip" style="background: #999;"></div>
+                        <div class="number">4915 0000 1111 2222</div>
+                        <div class="holder">DIEGO DE JESUS MIGUEL RODRIGUEZ</div>
+                    </div>
+                    <div class="back">
+                        <div class="label-back">Disponible</div>
+                        <div class="value-back">$4,500.00</div>
+                        <div class="stats">
+                            <div class="stat-box"><span>EXP</span><strong>02/29</strong></div>
+                            <div class="stat-box"><span>CVV</span><strong>007</strong></div>
+                            <div class="stat-box"><span>NIP</span><strong>1313</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
